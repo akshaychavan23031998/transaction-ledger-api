@@ -1,0 +1,53 @@
+services:
+  mongo:
+    image: mongo:8.0
+    command: ['mongod', '--replSet', 'rs0', '--bind_ip_all', '--port', '27017']
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '27017:27017'
+    volumes:
+      - transaction-ledger-mongo-rs-data:/data/db
+    healthcheck:
+      test: ['CMD-SHELL', "mongosh --quiet --eval 'db.adminCommand({ ping: 1 }).ok' | grep 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mongo-init:
+    image: mongo:8.0
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: 'no'
+    entrypoint: ['mongosh']
+    command:
+      - --host
+      - mongo:27017
+      - --eval
+      - 'try { rs.status() } catch (e) { rs.initiate({_id: "rs0", members: [{_id: 0, host: "host.docker.internal:27017"}]}) }'
+
+  api:
+    build: .
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    depends_on:
+      mongo-init:
+        condition: service_completed_successfully
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://mongo:27017/transaction_ledger?replicaSet=rs0
+      TRANSACTION_RETRY_ATTEMPTS: 3
+    ports:
+      - '3000:3000'
+    healthcheck:
+      test: ['CMD', 'wget', '--spider', '--quiet', 'http://localhost:3000/health']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  transaction-ledger-mongo-rs-data:
