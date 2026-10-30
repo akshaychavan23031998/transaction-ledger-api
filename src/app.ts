@@ -35,3 +35,5 @@ app.get('/api-docs.json', (_req, res) => res.json(openApiDocument));
 
 app.use(notFoundHandler);
 app.use(errorHandler);
+
+export default app;
