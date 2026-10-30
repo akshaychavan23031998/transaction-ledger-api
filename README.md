@@ -150,7 +150,7 @@ npm run test:concurrency
 npm run test:coverage
 ```
 
-The integration and concurrency suites use the local replica set and a generated database named `transaction_ledger_test_<process-id>`. Test startup rejects any non-test database name before connecting, and cleanup refuses to drop an unexpected database. The default development URI includes `directConnection=true` so a host process can use the one-node local replica set; the Compose API uses the internal `mongo` service URI.
+The integration and concurrency suites use the local replica set and a generated database named `transaction_ledger_test_<process-id>`. Test setup explicitly defaults to the local replica-set URI before application dotenv loading, so a production `.env` cannot silently redirect tests to Atlas. Test startup rejects any non-test database name before connecting, and cleanup refuses to drop an unexpected database. The default development URI includes `directConnection=true` so a host process can use the one-node local replica set; the Compose API uses the internal `mongo` service URI.
 
 Never run the database-backed suites with `MONGODB_DB_NAME=transaction_ledger`. The test configuration fails fast instead of risking the development database.
 
