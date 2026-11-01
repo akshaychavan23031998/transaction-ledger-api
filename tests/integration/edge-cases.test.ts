@@ -251,4 +251,21 @@ describe('edge cases and API contracts', () => {
     expect(swagger.status).toBe(200);
     expect(swagger.text).toContain('swagger-ui');
   });
+
+  it('serves Swagger UI assets with executable content types', async () => {
+    const assets = [
+      ['swagger-ui.css', 'text/css'],
+      ['swagger-ui-bundle.js', 'javascript'],
+      ['swagger-ui-standalone-preset.js', 'javascript'],
+      ['swagger-ui-init.js', 'javascript'],
+    ] as const;
+
+    for (const [asset, contentType] of assets) {
+      const response = await request(app).get(`/api-docs/${asset}`);
+
+      expect(response.status).toBe(200);
+      expect(response.headers['content-type']).toContain(contentType);
+      expect(response.text).not.toContain('<!DOCTYPE html>');
+    }
+  });
 });

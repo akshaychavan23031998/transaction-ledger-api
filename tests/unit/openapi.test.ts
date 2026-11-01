@@ -9,6 +9,7 @@ describe('OpenAPI contract', () => {
       openApiDocument as unknown as Parameters<typeof validator.validate>[0],
     );
     expect(result.errors).toEqual([]);
+    expect(openApiDocument.servers).toEqual([{ url: '/', description: 'Current API origin' }]);
     expect(Object.keys(openApiDocument.paths)).toEqual(
       expect.arrayContaining([
         '/health',

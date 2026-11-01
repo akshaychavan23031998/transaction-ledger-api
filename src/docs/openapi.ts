@@ -8,7 +8,7 @@ export const openApiDocument = {
     version: '1.0.0',
     description: 'An atomic, idempotent account and immutable transaction ledger API.',
   },
-  servers: [{ url: 'http://localhost:3000', description: 'Local development' }],
+  servers: [{ url: '/', description: 'Current API origin' }],
   tags: [
     { name: 'Health', description: 'Process and database health' },
     { name: 'Accounts', description: 'Account creation and balance/history queries' },

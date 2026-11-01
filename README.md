@@ -516,7 +516,7 @@ Known error codes include `VALIDATION_ERROR`, `ACCOUNT_NOT_FOUND`, `INVALID_AMOU
 
 ## 16. Swagger walkthrough
 
-Swagger UI is available at [http://localhost:3000/api-docs](http://localhost:3000/api-docs), and the raw contract is available at `/api-docs.json`. The source of truth is [openapi.ts](src/docs/openapi.ts), and a Jest test validates the OpenAPI 3 document.
+Swagger UI is available at [http://localhost:3000/api-docs](http://localhost:3000/api-docs), and the raw contract is available at `/api-docs.json`. The source of truth is [openapi.ts](src/docs/openapi.ts), and Jest tests validate both the OpenAPI 3 document and the executable Swagger UI assets. The OpenAPI server is relative to the current origin, so the same documentation works locally and on Vercel.
 
 Open Swagger, select `POST /api/v1/accounts`, create an account, copy its generated ID into a transaction request, and then use the balance/history operations. Swagger examples use the same decimal-string contract as the runtime validator.
 
@@ -698,7 +698,7 @@ The URI selects the server; the test setup supplies a safe per-run database name
 
 ### Swagger does not load
 
-Verify `/api-docs.json` first. If the JSON is available, the application is running and the issue is limited to the UI route/browser.
+Verify `/api-docs.json` first, then verify that `/api-docs/swagger-ui.css`, `/api-docs/swagger-ui-bundle.js`, `/api-docs/swagger-ui-standalone-preset.js`, and `/api-docs/swagger-ui-init.js` return their correct content types. Vercel must include `node_modules/swagger-ui-dist/**` through `vercel.json`; otherwise the Express fallback can return the HTML page for missing assets and the browser will show a blank UI. A hard refresh after deployment is recommended.
 
 ## 25. Final verification report
 
@@ -712,17 +712,17 @@ This section is maintained from actual commands run in the repository. It must n
 | `npm run format:check`                        | PASS                                                |
 | `npm run build`                               | PASS                                                |
 | `npm run test:unit`                           | PASS — 16 tests                                     |
-| `npm run test:integration`                    | PASS — 22 tests                                     |
+| `npm run test:integration`                    | PASS — 23 tests                                     |
 | `npm run test:concurrency`                    | PASS — 6 tests                                      |
-| `npm run test:coverage`                       | PASS — 44 tests; 96.68% statements, 96.55% lines    |
+| `npm run test:coverage`                       | PASS — 45 tests; 94.96% statements, 94.76% lines    |
 | `npm run db:init` and actual index inspection | PASS — expected unique and history indexes observed |
-| `npm audit --omit=dev --audit-level=high`     | Not verified — npm registry DNS unavailable         |
+| `npm audit --omit=dev --audit-level=high`     | PASS — 0 high-or-higher production vulnerabilities  |
 | `docker compose config`                       | PASS                                                |
 | Docker MongoDB replica set                    | PASS — primary observed                             |
 | Docker API health endpoint                    | PASS — `database: connected`                        |
 | Raw OpenAPI endpoint                          | PASS                                                |
 
-No production deployment or external database was accessed. The final audit command could not contact `registry.npmjs.org`; dependency vulnerability status should be refreshed in a network-enabled CI environment before publishing.
+The table records repository-local verification. Production smoke checks should be rerun after each deployment because Vercel packaging and environment variables are external to the local test process. The final audit command could not contact `registry.npmjs.org`; dependency vulnerability status should be refreshed in a network-enabled CI environment before publishing.
 
 ## 26. Future improvements
 
