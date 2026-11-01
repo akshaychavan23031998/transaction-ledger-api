@@ -7,6 +7,10 @@ export const openApiDocument = {
     title: 'Transaction Ledger API',
     version: '1.0.0',
     description: 'An atomic, idempotent account and immutable transaction ledger API.',
+    contact: {
+      name: 'Akshay Chavan',
+      url: 'https://akshay-chavan-portfolio.vercel.app/',
+    },
   },
   servers: [{ url: '/', description: 'Current API origin' }],
   tags: [

@@ -757,3 +757,5 @@ The table records repository-local verification. Production smoke checks should 
 - Add reconciliation jobs and invariant alarms.
 - Add a formal versioned migration runner for future schema/data changes.
 - Add API client SDKs and generated contract checks in CI.
+
+Project author: Akshay Chavan. For more about the author and contact options, visit the [Akshay Chavan portfolio](https://akshay-chavan-portfolio.vercel.app/).
