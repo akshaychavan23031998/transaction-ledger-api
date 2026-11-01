@@ -107,6 +107,29 @@ docker compose up -d --build
 
 The Compose project is scoped to `transaction-ledger-api`. It creates one MongoDB 8 replica-set member, initializes `rs0`, and starts the API after MongoDB becomes healthy.
 
+### Live deployment and reviewer links
+
+The deployed API is available at [transaction-ledger-api-woad.vercel.app](https://transaction-ledger-api-woad.vercel.app/). These links are safe starting points for review:
+
+| Resource             | Link                                                                                     |
+| -------------------- | ---------------------------------------------------------------------------------------- |
+| GitHub repository    | [transaction-ledger-api](https://github.com/akshaychavan23031998/transaction-ledger-api) |
+| Health check         | [`GET /health`](https://transaction-ledger-api-woad.vercel.app/health)                   |
+| Swagger UI           | [`/api-docs/`](https://transaction-ledger-api-woad.vercel.app/api-docs/)                 |
+| Raw OpenAPI document | [`/api-docs.json`](https://transaction-ledger-api-woad.vercel.app/api-docs.json)         |
+
+Example live health response:
+
+```json
+{
+  "status": "ok",
+  "database": "connected",
+  "request_id": "ad077578-dfa8-46e7-80e9-11466c780cfe"
+}
+```
+
+`request_id` is generated per request, so reviewers should expect a different value when they refresh the endpoint. The OpenAPI document lists the complete account, balance, transaction-history, credit/debit, and transfer contract.
+
 Account creation is intentionally small: the client supplies a name, while the service owns identity, currency, timestamps, and the initial zero balance.
 
 ```mermaid
@@ -698,7 +721,7 @@ The URI selects the server; the test setup supplies a safe per-run database name
 
 ### Swagger does not load
 
-Verify `/api-docs.json` first, then verify that `/api-docs/swagger-ui.css`, `/api-docs/swagger-ui-bundle.js`, `/api-docs/swagger-ui-standalone-preset.js`, and `/api-docs/swagger-ui-init.js` return their correct content types. Vercel must include `node_modules/swagger-ui-dist/**` through `vercel.json`; otherwise the Express fallback can return the HTML page for missing assets and the browser will show a blank UI. A hard refresh after deployment is recommended.
+Verify `/api-docs.json` first, then verify that `/api-docs/swagger-ui.css`, `/api-docs/swagger-ui-bundle.js`, `/api-docs/swagger-ui-standalone-preset.js`, and `/api-docs/swagger-ui-init.js` return their correct content types. Vercel includes `node_modules/swagger-ui-dist/**` through `vercel.json`, and the Express app explicitly serves the three static assets before the Swagger fallback handler. If an asset returns `text/html`, the browser will show a blank UI; redeploy and perform a hard refresh.
 
 ## 25. Final verification report
 
@@ -714,7 +737,7 @@ This section is maintained from actual commands run in the repository. It must n
 | `npm run test:unit`                           | PASS — 16 tests                                     |
 | `npm run test:integration`                    | PASS — 23 tests                                     |
 | `npm run test:concurrency`                    | PASS — 6 tests                                      |
-| `npm run test:coverage`                       | PASS — 45 tests; 94.96% statements, 94.76% lines    |
+| `npm run test:coverage`                       | PASS — 45 tests; 95.05% statements, 94.86% lines    |
 | `npm run db:init` and actual index inspection | PASS — expected unique and history indexes observed |
 | `npm audit --omit=dev --audit-level=high`     | PASS — 0 high-or-higher production vulnerabilities  |
 | `docker compose config`                       | PASS                                                |

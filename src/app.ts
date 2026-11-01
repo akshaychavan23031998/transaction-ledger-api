@@ -1,6 +1,8 @@
 import express from 'express';
 import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 
 import { connectDatabase, initializeDatabase, isDatabaseConnected } from './config/database';
 import { openApiDocument } from './docs/openapi';
@@ -61,6 +63,20 @@ app.use('/api/v1', databaseMiddleware);
 app.use('/api/v1/accounts', accountRouter);
 app.use('/api/v1/transactions', ledgerRouter);
 app.use('/api/v1/transfers', transferRouter);
+
+const swaggerUiDistRoot = dirname(require.resolve('swagger-ui-dist/package.json'));
+const swaggerStaticAssets = {
+  'swagger-ui.css': 'text/css',
+  'swagger-ui-bundle.js': 'application/javascript',
+  'swagger-ui-standalone-preset.js': 'application/javascript',
+} as const;
+
+for (const [asset, contentType] of Object.entries(swaggerStaticAssets)) {
+  app.get(`/api-docs/${asset}`, (_req, res) => {
+    res.type(contentType).send(readFileSync(join(swaggerUiDistRoot, asset)));
+  });
+}
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));
 app.get('/api-docs.json', (_req, res) => res.json(openApiDocument));
 
